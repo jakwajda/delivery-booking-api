@@ -200,8 +200,8 @@ class BookingIT extends DatabaseTest {
         assertThat(http.get().uri("/actuator/health/readiness").retrieve().body(String.class))
                 .contains("UP");
         var metrics = http.get().uri("/actuator/prometheus").retrieve().body(String.class);
-        assertThat(metrics).contains("delivery_bookings_accepted_total", 
-                
+        assertThat(metrics).contains("delivery_bookings_accepted_total", "delivery_queue_ready",
+                "delivery_queue_scheduled",
                 "delivery_booking_submit_seconds_count", "delivery_booking_submit_seconds_sum");
         assertThat(metrics).doesNotContain("orderReference=", "bookingId=");
     }
