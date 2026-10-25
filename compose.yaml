@@ -14,5 +14,32 @@ services:
       interval: 2s
       timeout: 2s
       retries: 30
+  alpha:
+    image: python:3.13-alpine
+    command: ["python", "/app/carrier.py"]
+    environment:
+      CARRIER: alpha
+    labels:
+      org.springframework.boot.ignore: "true"
+    ports:
+      - "127.0.0.1:9091:8080"
+    volumes:
+      - ./simulators:/app:ro
+      - alpha-data:/data
+  beta:
+    image: python:3.13-alpine
+    command: ["python", "/app/carrier.py"]
+    environment:
+      CARRIER: beta
+    labels:
+      org.springframework.boot.ignore: "true"
+    ports:
+      - "127.0.0.1:9092:8080"
+    volumes:
+      - ./simulators:/app:ro
+      - beta-data:/data
+
 volumes:
   delivery-data:
+  alpha-data:
+  beta-data:
