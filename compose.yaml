@@ -38,7 +38,38 @@ services:
     volumes:
       - ./simulators:/app:ro
       - beta-data:/data
-
+  api:
+    profiles: [application]
+    build: .
+    image: delivery-booking-api:local
+    environment: &app-environment
+      DB_URL: jdbc:postgresql://postgres:5432/delivery
+      ALPHA_URL: http://alpha:8080
+      BETA_URL: http://beta:8080
+      SPRING_PROFILES_ACTIVE: api
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      alpha:
+        condition: service_started
+      beta:
+        condition: service_started
+  worker:
+    profiles: [application]
+    build: .
+    image: delivery-booking-api:local
+    environment:
+      <<: *app-environment
+      SPRING_PROFILES_ACTIVE: worker
+    depends_on:
+      postgres:
+        condition: service_healthy
+      alpha:
+        condition: service_started
+      beta:
+        condition: service_started
 volumes:
   delivery-data:
   alpha-data:
