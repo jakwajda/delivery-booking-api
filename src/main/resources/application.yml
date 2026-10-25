@@ -1,0 +1,71 @@
+spring:
+  application:
+    name: delivery-booking-api
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:55432/delivery}
+    username: ${DB_USER:delivery}
+    password: ${DB_PASSWORD:delivery}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  docker:
+    compose:
+      enabled: false
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX,UTC} %-5level [%thread] %logger{60} [requestId=%X{requestId:-none}] %msg%n%ex"
+management:
+  observations:
+    annotations:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      group:
+        readiness:
+          include: readinessState,db
+delivery:
+  worker:
+    enabled: true
+    poll-delay: 500
+    concurrency: 2
+    lease: 30s
+    max-attempts: 5
+    max-age: 1h
+    initial-backoff: 1s
+    max-backoff: 30s
+  carriers:
+    alpha-url: ${ALPHA_URL:http://localhost:9091}
+    beta-url: ${BETA_URL:http://localhost:9092}
+    connect-timeout: 2s
+    request-timeout: 5s
+---
+spring:
+  config:
+    activate:
+      on-profile: api
+delivery:
+  worker:
+    enabled: false
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+  docker:
+    compose:
+      enabled: true
+---
+spring:
+  config:
+    activate:
+      on-profile: worker
+delivery:
+  api:
+    enabled: false
